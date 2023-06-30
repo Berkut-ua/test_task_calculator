@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Calculator</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+      <h1>Calculator:</h1>
+
+      <span>
+          {{ form.field_x }}
+          
+          <span id="error_field_x" class="errorMsg">*</span>
+      </span>
+      <span>
+          {{ form.action }}
+          
+          <span id="error_action" class="errorMsg">*</span>
+      </span>
+      <span>
+          {{ form.field_y }}
+          
+          <span id="error_field_y" class="errorMsg">*</span>
+      </span>
+      =
+      <input id="id_result" name="result" />
+      <button onClick="sendData()">Count</button>
+     
+      <script>
+       function field2URI(className) {
+           return encodeURIComponent(document.getElementById(className).value)
+       }
+       
+       function sendData() {
+           let field_x = field2URI("id_field_x");
+           let act = field2URI("id_action");
+           let field_y = field2URI("id_field_y");
+           fetch(`/calculator?field_x=${field_x}&action=${act}&field_y=${field_y}`)
+               .then((response) => {
+                   errorMsg = document.getElementsByClassName('errorMsg');
+                   for(var i=0, len=errorMsg.length; i<len; i++) {
+                       errorMsg[i].style["display"] = 'none';
+                   }
+                   if(response.status == 200) {
+                       response.json().then(json => {
+                           document.getElementById("id_result").value = json.result
+                       })
+                   } else {
+                       response.json().then(json => {
+                           for (let i in json) {
+                               msgBlock = document.getElementById(`error_${i}`);
+                               msgBlock.style.display = 'inline-block';
+                           }
+                       });
+                   }
+               }).catch((error) => {
+                   console.log('erroro msg: ', error)
+               });
+       }
+      </script>
+
+      <style>
+       .errorMsg {
+           display: none;
+           color: red;
+       }
+      </style>
+  </body>
+</html>
